@@ -2,7 +2,7 @@
 
 DevPulse is an internal tech issue and feature tracker API. Team members can report bugs, suggest features and follow the progress of every issue. It has two roles, contributor and maintainer, and each role has its own permissions.
 
-**Live URL:** will be added after deployment
+**Live URL:** https://devpulse-psi-jet.vercel.app
 
 ## Features
 
