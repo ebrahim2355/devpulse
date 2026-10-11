@@ -133,9 +133,18 @@ const updateIssue = async (id: number, payload: IUpdateIssuePayload, user: IToke
     return updatedIssue;
 };
 
+const deleteIssue = async (id: number): Promise<void> => {
+    const result = await pool.query("DELETE FROM issues WHERE id = $1", [id]);
+
+    if (!result.rowCount) {
+        throw new AppError(StatusCodes.NOT_FOUND, "Issue not found", `No issue found with id ${id}`);
+    }
+};
+
 export const issueService = {
     createIssue,
     getAllIssues,
     getSingleIssue,
     updateIssue,
+    deleteIssue,
 };
