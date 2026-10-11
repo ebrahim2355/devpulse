@@ -3,6 +3,7 @@ import express, { Application, Request, Response } from "express";
 import globalErrorHandler from "./middleware/globalErrorHandler";
 import notFound from "./middleware/notFound";
 import { authRoutes } from "./modules/auth/auth.routes";
+import { issueRoutes } from "./modules/issue/issue.routes";
 
 const app: Application = express();
 
@@ -17,6 +18,7 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 app.use("/api/auth", authRoutes);
+app.use("/api/issues", issueRoutes);
 
 app.use(notFound);
 app.use(globalErrorHandler);
