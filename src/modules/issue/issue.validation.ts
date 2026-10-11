@@ -1,5 +1,5 @@
 import { isNonEmptyString, isOneOf } from "../../utils/validators";
-import { issueTypes } from "./issue.interface";
+import { issueSortOptions, issueStatuses, issueTypes } from "./issue.interface";
 
 const checkTitle = (title: unknown, errors: string[]) => {
     if (!isNonEmptyString(title)) {
@@ -33,6 +33,26 @@ const validateCreateIssue = (body: Record<string, unknown>): string[] => {
     return errors;
 };
 
+const validateIssueQuery = (query: Record<string, unknown>): string[] => {
+    const errors: string[] = [];
+    const { sort, type, status } = query;
+
+    if (sort !== undefined && !isOneOf(sort, issueSortOptions)) {
+        errors.push("sort must be newest or oldest");
+    }
+
+    if (type !== undefined) {
+        checkType(type, errors);
+    }
+
+    if (status !== undefined && !isOneOf(status, issueStatuses)) {
+        errors.push("status must be open, in_progress or resolved");
+    }
+
+    return errors;
+};
+
 export const issueValidation = {
     validateCreateIssue,
+    validateIssueQuery,
 };

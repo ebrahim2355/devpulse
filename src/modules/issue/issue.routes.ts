@@ -13,4 +13,6 @@ router.post(
     issueController.createIssue
 );
 
+router.get("/", validateRequest(issueValidation.validateIssueQuery, "query"), issueController.getAllIssues);
+
 export const issueRoutes = router;
