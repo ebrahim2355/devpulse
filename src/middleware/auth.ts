@@ -37,6 +37,7 @@ const auth = (...allowedRoles: TUserRole[]) => {
             throw new AppError(StatusCodes.UNAUTHORIZED, "Unauthorized access", "Authorization token is missing");
         }
 
+        // token is sent directly, but a Bearer prefix is also accepted
         const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : authHeader;
         const user = verifyToken(token);
 

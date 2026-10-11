@@ -1,5 +1,6 @@
 type TColumnValues = Record<string, string | undefined>;
 
+// makes "column = $1" pairs and skips the fields that are not given
 const buildColumnPairs = (fields: TColumnValues) => {
     const pairs: string[] = [];
     const values: string[] = [];

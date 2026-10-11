@@ -35,6 +35,7 @@ const createIssue = async (payload: ICreateIssuePayload, reporterId: number): Pr
     return issue;
 };
 
+// no JOIN is used, so all reporters are loaded with one extra query
 const getReporters = async (reporterIds: number[]): Promise<Map<number, IReporter>> => {
     const reporters = new Map<number, IReporter>();
 
@@ -71,6 +72,7 @@ const getAllIssues = async (query: IIssueQuery): Promise<IIssueWithReporter[]> =
         values
     );
 
+    // same user can report many issues, so only unique ids are sent
     const reporterIds = [...new Set(result.rows.map((issue) => issue.reporter_id))];
     const reporters = await getReporters(reporterIds);
 
@@ -98,6 +100,7 @@ const getSingleIssue = async (id: number): Promise<IIssueWithReporter> => {
 const updateIssue = async (id: number, payload: IUpdateIssuePayload, user: ITokenPayload): Promise<IIssue> => {
     const issue = await getIssueById(id);
 
+    // maintainer can update anything, contributor only own issue while it is open
     if (user.role === "contributor") {
         if (issue.reporter_id !== user.id) {
             throw new AppError(StatusCodes.FORBIDDEN, "Forbidden access", "You can only update your own issue");
@@ -119,6 +122,7 @@ const updateIssue = async (id: number, payload: IUpdateIssuePayload, user: IToke
         status: payload.status,
     });
 
+    // id takes the next placeholder after the updated fields
     const result = await pool.query<IIssue>(
         `UPDATE issues SET ${clause}, updated_at = NOW() WHERE id = $${values.length + 1} RETURNING *`,
         [...values, id]
