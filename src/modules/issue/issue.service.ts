@@ -69,7 +69,26 @@ const getAllIssues = async (query: IIssueQuery): Promise<IIssueWithReporter[]> =
     return result.rows.map((issue) => attachReporter(issue, reporters.get(issue.reporter_id)));
 };
 
+const getIssueById = async (id: number): Promise<IIssue> => {
+    const result = await pool.query<IIssue>("SELECT * FROM issues WHERE id = $1", [id]);
+    const issue = result.rows[0];
+
+    if (!issue) {
+        throw new AppError(StatusCodes.NOT_FOUND, "Issue not found", `No issue found with id ${id}`);
+    }
+
+    return issue;
+};
+
+const getSingleIssue = async (id: number): Promise<IIssueWithReporter> => {
+    const issue = await getIssueById(id);
+    const reporters = await getReporters([issue.reporter_id]);
+
+    return attachReporter(issue, reporters.get(issue.reporter_id));
+};
+
 export const issueService = {
     createIssue,
     getAllIssues,
+    getSingleIssue,
 };

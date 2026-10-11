@@ -15,4 +15,6 @@ router.post(
 
 router.get("/", validateRequest(issueValidation.validateIssueQuery, "query"), issueController.getAllIssues);
 
+router.get("/:id", issueController.getSingleIssue);
+
 export const issueRoutes = router;

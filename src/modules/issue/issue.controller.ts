@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import catchAsync from "../../utils/catchAsync";
+import parseId from "../../utils/parseId";
 import sendResponse from "../../utils/sendResponse";
 import { ITokenPayload } from "../auth/auth.interface";
 import { IIssueQuery } from "./issue.interface";
@@ -27,7 +28,19 @@ const getAllIssues = catchAsync(async (req: Request, res: Response) => {
     });
 });
 
+const getSingleIssue = catchAsync(async (req: Request, res: Response) => {
+    const id = parseId(req.params.id);
+    const result = await issueService.getSingleIssue(id);
+
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        message: "Issue retrived successfully",
+        data: result,
+    });
+});
+
 export const issueController = {
     createIssue,
     getAllIssues,
+    getSingleIssue,
 };
