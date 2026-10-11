@@ -30,6 +30,22 @@ const validateSignup = (body: Record<string, unknown>): string[] => {
     return errors;
 };
 
+const validateLogin = (body: Record<string, unknown>): string[] => {
+    const errors: string[] = [];
+    const { email, password } = body;
+
+    if (!isNonEmptyString(email)) {
+        errors.push("email is required");
+    }
+
+    if (!isNonEmptyString(password)) {
+        errors.push("password is required");
+    }
+
+    return errors;
+};
+
 export const authValidation = {
     validateSignup,
+    validateLogin,
 };
