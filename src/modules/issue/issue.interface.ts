@@ -35,6 +35,13 @@ export interface ICreateIssuePayload {
     type: TIssueType;
 }
 
+export interface IUpdateIssuePayload {
+    title?: string;
+    description?: string;
+    type?: TIssueType;
+    status?: TIssueStatus;
+}
+
 export interface IIssueQuery {
     sort?: TIssueSort;
     type?: TIssueType;

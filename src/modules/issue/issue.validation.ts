@@ -23,6 +23,12 @@ const checkType = (type: unknown, errors: string[]) => {
     }
 };
 
+const checkStatus = (status: unknown, errors: string[]) => {
+    if (!isOneOf(status, issueStatuses)) {
+        errors.push("status must be open, in_progress or resolved");
+    }
+};
+
 const validateCreateIssue = (body: Record<string, unknown>): string[] => {
     const errors: string[] = [];
 
@@ -45,8 +51,36 @@ const validateIssueQuery = (query: Record<string, unknown>): string[] => {
         checkType(type, errors);
     }
 
-    if (status !== undefined && !isOneOf(status, issueStatuses)) {
-        errors.push("status must be open, in_progress or resolved");
+    if (status !== undefined) {
+        checkStatus(status, errors);
+    }
+
+    return errors;
+};
+
+const validateUpdateIssue = (body: Record<string, unknown>): string[] => {
+    const errors: string[] = [];
+    const { title, description, type, status } = body;
+
+    if (title === undefined && description === undefined && type === undefined && status === undefined) {
+        errors.push("at least one of title, description, type or status is required");
+        return errors;
+    }
+
+    if (title !== undefined) {
+        checkTitle(title, errors);
+    }
+
+    if (description !== undefined) {
+        checkDescription(description, errors);
+    }
+
+    if (type !== undefined) {
+        checkType(type, errors);
+    }
+
+    if (status !== undefined) {
+        checkStatus(status, errors);
     }
 
     return errors;
@@ -55,4 +89,5 @@ const validateIssueQuery = (query: Record<string, unknown>): string[] => {
 export const issueValidation = {
     validateCreateIssue,
     validateIssueQuery,
+    validateUpdateIssue,
 };

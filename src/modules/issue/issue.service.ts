@@ -1,8 +1,16 @@
 import { StatusCodes } from "http-status-codes";
 import { pool } from "../../config/db";
 import AppError from "../../utils/AppError";
-import { buildWhereClause } from "../../utils/sqlClause";
-import { ICreateIssuePayload, IIssue, IIssueQuery, IIssueWithReporter, IReporter } from "./issue.interface";
+import { buildSetClause, buildWhereClause } from "../../utils/sqlClause";
+import { ITokenPayload } from "../auth/auth.interface";
+import {
+    ICreateIssuePayload,
+    IIssue,
+    IIssueQuery,
+    IIssueWithReporter,
+    IReporter,
+    IUpdateIssuePayload,
+} from "./issue.interface";
 
 const createIssue = async (payload: ICreateIssuePayload, reporterId: number): Promise<IIssue> => {
     const reporter = await pool.query("SELECT id FROM users WHERE id = $1", [reporterId]);
@@ -87,8 +95,47 @@ const getSingleIssue = async (id: number): Promise<IIssueWithReporter> => {
     return attachReporter(issue, reporters.get(issue.reporter_id));
 };
 
+const updateIssue = async (id: number, payload: IUpdateIssuePayload, user: ITokenPayload): Promise<IIssue> => {
+    const issue = await getIssueById(id);
+
+    if (user.role === "contributor") {
+        if (issue.reporter_id !== user.id) {
+            throw new AppError(StatusCodes.FORBIDDEN, "Forbidden access", "You can only update your own issue");
+        }
+
+        if (payload.status !== undefined) {
+            throw new AppError(StatusCodes.FORBIDDEN, "Forbidden access", "Only a maintainer can change the issue status");
+        }
+
+        if (issue.status !== "open") {
+            throw new AppError(StatusCodes.CONFLICT, "Issue cannot be updated", `This issue is already ${issue.status}`);
+        }
+    }
+
+    const { clause, values } = buildSetClause({
+        title: payload.title?.trim(),
+        description: payload.description?.trim(),
+        type: payload.type,
+        status: payload.status,
+    });
+
+    const result = await pool.query<IIssue>(
+        `UPDATE issues SET ${clause}, updated_at = NOW() WHERE id = $${values.length + 1} RETURNING *`,
+        [...values, id]
+    );
+
+    const updatedIssue = result.rows[0];
+
+    if (!updatedIssue) {
+        throw new AppError(StatusCodes.NOT_FOUND, "Issue not found", `No issue found with id ${id}`);
+    }
+
+    return updatedIssue;
+};
+
 export const issueService = {
     createIssue,
     getAllIssues,
     getSingleIssue,
+    updateIssue,
 };

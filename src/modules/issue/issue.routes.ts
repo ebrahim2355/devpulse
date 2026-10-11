@@ -17,4 +17,11 @@ router.get("/", validateRequest(issueValidation.validateIssueQuery, "query"), is
 
 router.get("/:id", issueController.getSingleIssue);
 
+router.patch(
+    "/:id",
+    auth("contributor", "maintainer"),
+    validateRequest(issueValidation.validateUpdateIssue),
+    issueController.updateIssue
+);
+
 export const issueRoutes = router;

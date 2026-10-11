@@ -39,8 +39,21 @@ const getSingleIssue = catchAsync(async (req: Request, res: Response) => {
     });
 });
 
+const updateIssue = catchAsync(async (req: Request, res: Response) => {
+    const id = parseId(req.params.id);
+    const user = req.user as ITokenPayload;
+    const result = await issueService.updateIssue(id, req.body, user);
+
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        message: "Issue updated successfully",
+        data: result,
+    });
+});
+
 export const issueController = {
     createIssue,
     getAllIssues,
     getSingleIssue,
+    updateIssue,
 };

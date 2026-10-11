@@ -22,3 +22,12 @@ export const buildWhereClause = (filters: TColumnValues) => {
         values,
     };
 };
+
+export const buildSetClause = (fields: TColumnValues) => {
+    const { pairs, values } = buildColumnPairs(fields);
+
+    return {
+        clause: pairs.join(", "),
+        values,
+    };
+};
